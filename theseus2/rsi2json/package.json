@@ -1,0 +1,13 @@
+{
+    "name": "rsi2json",
+    "version": "1.0.0",
+    "description": "RSI to JSON converter",
+    "main": "app.js",
+    "author": "BBC",
+    "license": "MIT",
+    "dependencies": {
+      "jbinary": "^2.1.5",
+      "date-fns": "^2.27.0"
+    }
+  }
+  

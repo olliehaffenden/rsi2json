@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "date-fns": "^2.27.0",
+    "jbinary": "^2.1.5"
+  }
+}

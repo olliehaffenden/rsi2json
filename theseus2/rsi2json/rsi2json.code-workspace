@@ -1,0 +1,66 @@
+{
+	"folders": [
+		{
+			"name": "AWS",
+			"path": "..\\.."
+		}
+	],
+	"launch": {
+		"configurations": [
+
+			{
+				"type": "aws-sam",
+				"request": "direct-invoke",
+				"name": "theseus2:rsi2jsonFunction",
+				"invokeTarget": {
+					"target": "template",
+					"templatePath": "theseus2/template.yaml",
+					"logicalId": "rsi2jsonFunction"
+				},
+				"lambda": {
+					"payload": {
+						"json": {
+
+							"Records": [
+							{
+								"messageId": "2be38839-43b3-4ae9-8491-d43b2460c9c4",
+								"receiptHandle": "AQEBzArapuYoL7Q8NuUcSZXPkawI0oVNXfsoL6whJhkX2Ia8WdQfaNsw6ZwcrRziY9UQoS3Mwbe4aD9fRA159D5d8Dvy3UgeonnAMtjNZ8uTGFBGYuEeFY0DYcxQwMqro98dGuWJe9/HLybzzwKznUjtp96uYvRPbM72cy2lSSAAoujmuUzWrj2nM29eyrQsos57l+OtoLd29LMeB6YqDaUr8ISPFTw7CMSBmMn1czS2bin2T4LFl+hpjihBpsZLBZWTxQSxRUrVpu8yCAAcUXZSgw3UViqdZWxSW5TBmjNcf78zJZJFNzTt4BZlgAmV7TkR2SzT5QSXxHAAQYWzxpCt4iHmQ5yH3MOCk1ZLDTLdbFp4cRTosnZiePBkgkdlUwWWPy/ej1go2g7lI7Amm6BY3g==",
+								"body": "{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"f436cf33-87d6-5725-a765-9529788cb34c\",\n  \"TopicArn\" : \"arn:aws:sns:eu-west-2:161858535246:rsci-frame-created\",\n  \"Subject\" : \"Amazon S3 Notification\",\n  \"Message\" : \"{\\\"Records\\\":[{\\\"eventVersion\\\":\\\"2.1\\\",\\\"eventSource\\\":\\\"aws:s3\\\",\\\"awsRegion\\\":\\\"eu-west-2\\\",\\\"eventTime\\\":\\\"2021-11-26T15:28:24.582Z\\\",\\\"eventName\\\":\\\"ObjectCreated:Put\\\",\\\"userIdentity\\\":{\\\"principalId\\\":\\\"AWS:AIDASLL4FH5HFDFCU2N67\\\"},\\\"requestParameters\\\":{\\\"sourceIPAddress\\\":\\\"132.185.114.167\\\"},\\\"responseElements\\\":{\\\"x-amz-request-id\\\":\\\"667D6Z7BJWGT03E5\\\",\\\"x-amz-id-2\\\":\\\"NCMi0PT3VljJZAFwld1IsEDvtYmusvUx7OJln0oxOfEAE+RyVOo0lMvxb46gvzQ3Yo3NOJJZXMJAvCSkVKWGSBR4EHvQWUAs\\\"},\\\"s3\\\":{\\\"s3SchemaVersion\\\":\\\"1.0\\\",\\\"configurationId\\\":\\\"new-rsi-frame-notification\\\",\\\"bucket\\\":{\\\"name\\\":\\\"monitoring-receiver-rsi-frames-bucket\\\",\\\"ownerIdentity\\\":{\\\"principalId\\\":\\\"A1QT84296236ZP\\\"},\\\"arn\\\":\\\"arn:aws:s3:::monitoring-receiver-rsi-frames-bucket\\\"},\\\"object\\\":{\\\"key\\\":\\\"BBCoph/2021-12-16/BBCoph_2021-12-16_08-43-59_872.rsA\\\",\\\"size\\\":411,\\\"eTag\\\":\\\"53ebaa61f14d49b15b8cf87e7dd680a0\\\",\\\"sequencer\\\":\\\"0061A0FD188CE10713\\\"}}}]}\",\n  \"Timestamp\" : \"2021-11-26T15:28:26.294Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"Fn0hJO3Wwmzlba1+SCli6pO38W6RlSGqUerNlBttqUdVCl+H3+KM44B4p1sToAJeUSJX+KxK4IxKrg2mKhLqjyQrvHzRQtlWJU+ho8A/CC0Rx7b3w4QmJto0J1EKP/ynx+PfQhgz2y0cTUz93eG3gdPh9Oxj+6MS+0xTZOG05Vf0yujmnDuIkLbRhZYSKs6CHiai+pLws7JdugqkpF7NBo90afxvNvj1NBuhYCMmYMxUJG0B7RuHGbXDEy46Z6kCusQsp67n/OQfcFWeFTncwc0j6C+VE2mcFF797FHSUlet3FDVBrtMUz4BLZrNnlPwm8N26SCW1XQVwKHIfpRsMQ==\",\n  \"SigningCertURL\" : \"https://sns.eu-west-2.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem\",\n  \"UnsubscribeURL\" : \"https://sns.eu-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-2:161858535246:rsci-frame-created:9d18e1d9-102b-4f2b-ade2-53f89c5c523f\"\n}",
+								"attributes": {
+								"ApproximateReceiveCount": "1",
+								"SentTimestamp": "1637940506364",
+								"SenderId": "AIDAIVEA3AGEU7NF6DRAG",
+								"ApproximateFirstReceiveTimestamp": "1637940506365"
+								},
+								"messageAttributes": {},
+								"md5OfBody": "4211c387e0e34d00ca93f934f1acd9a8",
+								"eventSource": "aws:sqs",
+								"eventSourceARN": "arn:aws:sqs:eu-west-2:161858535246:rsi-frames-queue",
+								"awsRegion": "eu-west-2"
+							},
+							{
+								"messageId": "b5ac714e-77b7-4e9b-bc6e-85f0b79aa7e2",
+								"receiptHandle": "AQEBaj5drN5AzPam+5PbEe4l8pfwfq1PFow7Ht3xqvPtonHnIDU3gJpZrQEmTRJDhFx7M/bYmWiKFip/D0WAmQgwgL/07g+MGWNle6h31WFPIdlCWpN4R+aNN9n6kifX9bw5y0txPdhfCUKGeUMArIAhOpktZ2aID1ffyG23U5Tnd8KKdNlVGTYJNcTooZuF6vwTQfysAf/t4XbsbLTVm/Mc+Z/wYKnkn3g8in83niknsboUgDuzpT9U2i2hULsdmEHfzHNpo4lut9bCPaJx9KliHUOGYtz8SUPoQaykIcWGiMquOidr6mvTksLo0e0PJPRh/snurs8bG1NOWhWlfZyUSDe/Vpkrk7t/pFJAOag+eOG5Vb7yjFejoFNRPpt8PXOKBMr1zlXi5WVYTWKSzySDqw==",
+								"body": "{\n  \"Type\" : \"Notification\",\n  \"MessageId\" : \"dddba1a4-869f-5d7a-a144-fbbe79c5ceb9\",\n  \"TopicArn\" : \"arn:aws:sns:eu-west-2:161858535246:rsci-frame-created\",\n  \"Subject\" : \"Amazon S3 Notification\",\n  \"Message\" : \"{\\\"Records\\\":[{\\\"eventVersion\\\":\\\"2.1\\\",\\\"eventSource\\\":\\\"aws:s3\\\",\\\"awsRegion\\\":\\\"eu-west-2\\\",\\\"eventTime\\\":\\\"2021-11-26T15:28:24.919Z\\\",\\\"eventName\\\":\\\"ObjectCreated:Put\\\",\\\"userIdentity\\\":{\\\"principalId\\\":\\\"AWS:AIDASLL4FH5HFDFCU2N67\\\"},\\\"requestParameters\\\":{\\\"sourceIPAddress\\\":\\\"132.185.114.167\\\"},\\\"responseElements\\\":{\\\"x-amz-request-id\\\":\\\"667EQN0N42DST9RY\\\",\\\"x-amz-id-2\\\":\\\"Vjrg269GoG3azTSyOL+gA6Y7D7V6AU+LCotyOmAJzGO4j62gEwJXCKXjp7stT2Qe4hOvkxsp1/MfADg48Yct53vuvf8tkXED\\\"},\\\"s3\\\":{\\\"s3SchemaVersion\\\":\\\"1.0\\\",\\\"configurationId\\\":\\\"new-rsi-frame-notification\\\",\\\"bucket\\\":{\\\"name\\\":\\\"monitoring-receiver-rsi-frames-bucket\\\",\\\"ownerIdentity\\\":{\\\"principalId\\\":\\\"A1QT84296236ZP\\\"},\\\"arn\\\":\\\"arn:aws:s3:::monitoring-receiver-rsi-frames-bucket\\\"},\\\"object\\\":{\\\"key\\\":\\\"ENCwof/2021-12-03/ENCwof_2021-12-03_06-05-06_637.rsA\\\",\\\"size\\\":0,\\\"eTag\\\":\\\"d41d8cd98f00b204e9800998ecf8427e\\\",\\\"sequencer\\\":\\\"0061A0FD18E3C1501A\\\"}}}]}\",\n  \"Timestamp\" : \"2021-11-26T15:28:26.318Z\",\n  \"SignatureVersion\" : \"1\",\n  \"Signature\" : \"pQzDR6XaBNakbWHvxTx5bSZW/AR/wpZEWY2KIdht5CqbrQQFR6O9ZfQ15wnlxOk/NwOcT8qqLqh0+jOb3Vk851FuUZ9xpa+035J6NmgFIEv/fSh3uCHj9XVa2w7lJr22jNNpClt1b3lA9FEWIi9c07sFmLt5OIdf/hZyU4aGmpbpHNcdvuX1nfoNLiiLISr5AtrEkSLxLF5Rykg3+EJIk4oZQRGSEdAhZnpaW0S71UbBYj29mJjpuc7QwzG4jnr15GeJQebI9zscLuxcDR8KXglWuJqq6OyS+MStO2wHHQwQ6UdLs7JYAEXH7AKNCtjcgdj5ovonhtJt2j2iPwMHmw==\",\n  \"SigningCertURL\" : \"https://sns.eu-west-2.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem\",\n  \"UnsubscribeURL\" : \"https://sns.eu-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-2:161858535246:rsci-frame-created:9d18e1d9-102b-4f2b-ade2-53f89c5c523f\"\n}",
+								"attributes": {
+								"ApproximateReceiveCount": "1",
+								"SentTimestamp": "1637940506366",
+								"SenderId": "AIDAIVEA3AGEU7NF6DRAG",
+								"ApproximateFirstReceiveTimestamp": "1637940506368"
+								},
+								"messageAttributes": {},
+								"md5OfBody": "946864122c32994625d1ac67c4027bfe",
+								"eventSource": "aws:sqs",
+								"eventSourceARN": "arn:aws:sqs:eu-west-2:161858535246:rsi-frames-queue",
+								"awsRegion": "eu-west-2"
+							}
+							]
+						},
+					  },
+					"environmentVariables": {}
+				}
+			}
+		]
+	},
+	"settings": {}
+}
