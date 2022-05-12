@@ -6,6 +6,35 @@ const rsiDecode = require('./rsidecode');
 var add_date = require('date-fns/add');
 var formatISO = require('date-fns/formatISO');
 
+var mysql = require('mysql');
+
+function insertToRDS(decodedFrame, rxid, frame_datetime)
+{
+    var connection = mysql.createConnection({
+        host: 'theseus-rsi-db.cluster-ce2jkjdqew1q.eu-west-2.rds.amazonaws.com',
+        user: 'admin',
+        password: '3Jt4aJPrPJxXvt99dGuK',
+        port: 3306,
+        database: 'theseus_rsi_db'
+    });
+
+    connection.connect(function (err) {
+        if (err) {
+            console.error('Database connection failed: ' + err.stack);
+            return;
+        }
+
+        console.log('Connected to database.');
+
+        let sql = 'INSERT INTO rsi_frames_table(rxid, frame_datetime, rdbv, raw_rsi) VALUES (?,?,?,?)';
+
+        connection.query(sql, [rxid, frame_datetime, decodedFrame.rdbv.signalStrengthValues[0],JSON.stringify(decodedFrame)]);
+
+        connection.end();
+    });
+
+}
+
 async function processRecord(record)
 {
     const parsedBody = JSON.parse(record.body);
@@ -21,7 +50,7 @@ async function processRecord(record)
         if (objectSize==0) {
             continue;
         }
-        //console.log('Bucket: %s\tFile: %s\t', s3BucketName, objectName);
+        console.log('Bucket: %s\tFile: %s\t', s3BucketName, objectName);
                 
         const bucketParams = {
             Bucket: s3BucketName,
@@ -63,15 +92,17 @@ async function processRecord(record)
                 }
             };
 
-            try {
-                await docClient.put(params).promise();
-                //console.log("Added item, or at any rate it didn't throw");
+//            try {
+//                await docClient.put(params).promise();
+//                //console.log("Added item, or at any rate it didn't throw");
 
-            } catch (err) {
-                console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-            }
+//            } catch (err) {
+//                console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+//            }
 
-            console.log("did the docClient.put()");
+//            console.log("did the docClient.put()");
+
+            insertToRDS(decodedFrame, rxid, frameDate.toISOString());
 
         } catch (err) {
             console.log(err);

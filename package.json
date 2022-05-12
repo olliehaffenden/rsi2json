@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "date-fns": "^2.27.0",
-    "jbinary": "^2.1.5"
+    "jbinary": "^2.1.5",
+    "mysql": "^2.18.1"
   }
 }
