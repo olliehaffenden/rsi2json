@@ -106,7 +106,7 @@ async function processRecord(record)
 
         } catch (err) {
             console.log(err);
-            throw new Error(message);
+            throw err;
         }
         
     }
