@@ -247,7 +247,10 @@ function decodeTagItem(tag_name, tag_bytes) {
                             return this.baseRead().readAll();
                         } catch (err)
                         {
-                            return "error (might be padding). TODO: deal with padding properly";
+                            return {
+                                de_type: -1,
+                                body: "Error"
+                            };
                         }
                         
                     }
@@ -363,7 +366,8 @@ function decodeTagItem(tag_name, tag_bytes) {
                         read: function () {
                             return this.baseRead().readAll();
                         }
-                    })
+                    }),
+                    crc: ['bitfield', 8]
                 },
                 'rbpN': [
                     'if', function (context) {

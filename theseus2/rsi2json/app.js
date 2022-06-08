@@ -65,7 +65,7 @@ async function processRecord(record)
 
             const decodedFrame = rsiDecode.decode(bytes);
 
-            console.log('decoded json: ' + JSON.stringify(decodedFrame,null, 2));
+            //console.log('decoded json: ' + JSON.stringify(decodedFrame,null, 2));
 
             var docClient = new aws.DynamoDB.DocumentClient();
 
