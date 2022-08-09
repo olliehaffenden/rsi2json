@@ -8,7 +8,8 @@
     "dependencies": {
       "jbinary": "^2.1.5",
       "date-fns": "^2.27.0",
-      "mysql": "^2.18.1"
+      "mysql": "^2.18.1",
+      "mysql2": "^2.3.3"
     }
   }
   

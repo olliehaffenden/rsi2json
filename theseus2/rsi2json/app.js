@@ -6,33 +6,24 @@ const rsiDecode = require('./rsidecode');
 var add_date = require('date-fns/add');
 var formatISO = require('date-fns/formatISO');
 
-var mysql = require('mysql');
+var mysql2 = require('mysql2/promise');
 
-function insertToRDS(decodedFrame, rxid, frame_datetime)
-{
-    var connection = mysql.createConnection({
-        host: 'theseus-rsi-db.cluster-ce2jkjdqew1q.eu-west-2.rds.amazonaws.com',
-        user: 'admin',
-        password: '3Jt4aJPrPJxXvt99dGuK',
-        port: 3306,
-        database: 'theseus_rsi_db'
-    });
+const s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
-    connection.connect(function (err) {
-        if (err) {
-            console.error('Database connection failed: ' + err.stack);
-            return;
+var connection = undefined;
+
+async function insertToRDS(decodedFrame, rxid, frame_datetime) {
+
+    
+        let sql = 'INSERT INTO rsi_frames_table(rxid, frame_datetime, rdbv, raw_rsi) VALUES (?,?,?,?)'; // TODO: consider prepared statement
+
+        try {
+            const [rows, fields]  = await connection.execute(sql, [rxid, frame_datetime, decodedFrame.rdbv.signalStrengthValues[0], JSON.stringify(decodedFrame)]);
+            console.log("Query returned ", rows, fields);
+        } catch (err) {
+            console.error("Query failed: ", err);
+            return Promise.reject(err);
         }
-
-        console.log('Connected to database.');
-
-        let sql = 'INSERT INTO rsi_frames_table(rxid, frame_datetime, rdbv, raw_rsi) VALUES (?,?,?,?)';
-
-        connection.query(sql, [rxid, frame_datetime, decodedFrame.rdbv.signalStrengthValues[0],JSON.stringify(decodedFrame)]);
-
-        connection.end();
-    });
-
 }
 
 async function processRecord(record)
@@ -56,7 +47,6 @@ async function processRecord(record)
             Bucket: s3BucketName,
             Key: objectName,
         }; 
-        const s3 = new aws.S3({ apiVersion: '2006-03-01' });
         try {
             //const data = await s3Client.send(new GetObjectCommand(bucketParams));
             const data = await s3.getObject(bucketParams).promise();
@@ -66,8 +56,9 @@ async function processRecord(record)
             const decodedFrame = rsiDecode.decode(bytes);
 
             //console.log('decoded json: ' + JSON.stringify(decodedFrame,null, 2));
+            //console.log('successfully decoded the RSI frame');
 
-            var docClient = new aws.DynamoDB.DocumentClient();
+            //var docClient = new aws.DynamoDB.DocumentClient();
 
             //const rxid = decodedFrame.filter(tagItem => tagItem.tag_name==="rinf")[0].serial;
             const rxid = decodedFrame.rinf.serial;
@@ -82,31 +73,13 @@ async function processRecord(record)
                 seconds: Math.floor(fmjd.fractional_day / 10000)
             });
             frameDate.setMilliseconds(Math.floor((fmjd.fractional_day % 10000)/10));
+            console.log('Frame datetime: ' + frameDate.toISOString());
 
-            const params = {
-                TableName: "rsi-frames-table",
-                Item: {
-                    rxid: rxid,
-                    frame_datetime: frameDate.toISOString(),                      
-                    tagItems: decodedFrame
-                }
-            };
-
-//            try {
-//                await docClient.put(params).promise();
-//                //console.log("Added item, or at any rate it didn't throw");
-
-//            } catch (err) {
-//                console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-//            }
-
-//            console.log("did the docClient.put()");
-
-            insertToRDS(decodedFrame, rxid, frameDate.toISOString());
+            await insertToRDS(decodedFrame, rxid, frameDate.toISOString());
 
         } catch (err) {
-            console.log(err);
-            throw err;
+            console.log("Error in ProcessRecord(): ",err);
+            return Promise.reject(err);
         }
         
     }
@@ -120,14 +93,39 @@ exports.lambdaHandler = async (event) => {
 //    for (const record of event.Records) {
 //        await processRecord(record);
 //    }
-    await Promise.all(
+    if (connection === undefined) {
+        try {
+            connection = await mysql2.createConnection({
+                host: 'theseus-rsi-db.cluster-ce2jkjdqew1q.eu-west-2.rds.amazonaws.com',
+                //host: 'theseus-rsi-db-r6g-xlarge-cluster.ce2jkjdqew1q.eu-west-2.rds.amazonaws.com',
+                user: 'admin',
+                password: '3Jt4aJPrPJxXvt99dGuK',
+                port: 3306,
+                database: 'theseus_rsi_db'
+            });
+
+
+            //connection.on('error', function(err) {
+            //    console.error("mysql error: " + err.code); 
+            //  });
+
+            //const conn = await connection.connect(function (err) {
+            //    if (err) {
+            //        console.error('Database connection failed: ' + err.stack);
+            //        throw(err);
+            //    }
+
+            console.log('Connected to database.');
+        } catch (err) {
+            console.error("CreateConnection failed: ", err);
+            return Promise.reject(err);
+        }
+    }
+
+    return Promise.all(
         event.Records.map(
-            async (record) => {
-                await processRecord(record);
-            }
-            
+            async (record) => processRecord(record)
         )
 
-    )
-    return `Successfully processed ${event.Records.length} messages.`;
-};
+    );
+}
