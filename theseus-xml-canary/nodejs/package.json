@@ -1,0 +1,9 @@
+{
+  "name": "theseus-xml-canary",
+  "foo": "bar",
+  "main": "node_modules/theseus-xml-canary.js",
+  "dependencies": {
+    "@aws-cdk/aws-synthetics": "^1.202.0",
+    "xml2js": "^0.5.0"
+  }
+}
