@@ -683,4 +683,79 @@ function rsciArrayToMap(tagItemArray)
     return tag_map;
 }
 
-module.exports = { decode, decodeAll };
+const rciTypeset = {
+	cfre: { 
+		"reception_frequency": "uint32"
+	},
+	cdmo: {
+		"demodulator_type": ['string',4]
+	}
+};
+
+function buildTagBody(tagName, dataObj) {
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, rciTypeset);
+	binary.write(tagName, dataObj);
+	return buf.slice(0,binary.tell());
+};
+
+function buildTagItem(tag_name, dataObj) {
+
+	const body = buildTagBody(tag_name, dataObj);
+	const tagObj = {
+		"tag_name": tag_name,
+		"tag_length": body.length * 8,
+		"tag_value_with_padding": body
+	};
+	return tagObj;
+};
+
+function buildTagPacket(tagItems) {
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, TAGPacketTypeset);
+	binary.write("TAGPacket", tagItems);
+	return buf.slice(0,binary.tell());
+
+
+};
+
+function buildAfFrame(tagPacket) {
+
+	const frameObj = { 
+	    sync: 'AF',
+            len: tagPacket.length,
+            seq: 0,
+            cf: 0,
+            maj_ver: 1,
+            min_ver: 0,
+            pt: 'T',
+            tag_packet: tagPacket,
+            crc: 0
+        }
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, AFFrameTypeset);
+	binary.write("AFFrame", frameObj);
+	return buf.slice(0,binary.tell());
+}
+
+
+function encodeRCI(rciObj) {
+	var tagItems = [];
+
+	if ("frequency" in rciObj) 
+		tagItems.push(buildTagItem("cfre", {reception_frequency: rciObj.frequency}));
+	if ("mode" in rciObj) 
+		tagItems.push(buildTagItem("cdmo", {demodulator_type: rciObj.mode}));
+
+	const tagPacket = buildTagPacket(tagItems);
+	
+	const afFrame = buildAfFrame(tagPacket);
+	console.log("AF Frame: ", afFrame);
+
+	return afFrame;
+}
+
+
+
+
+module.exports = { decode, decodeAll, encodeRCI };
