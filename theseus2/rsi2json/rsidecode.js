@@ -523,9 +523,20 @@ function decodeTagItem(tag_name, tag_bytes) {
                     ]
                 },
                 'rama':{
-                    codecType:'uint8',//can i stick an If statement in here to check for the standard/non standard codecs?, currently assuming it is = 192(10)
-                    audioCfgLen:'uint8',
-                    audioCfg:['array','uint8','audioCfgLen'],
+                    codecTypeMSBs: ['bitfield', 2],
+		    codecTypeNonStandard: ['bitfield', 1],
+		    codecTypeZeros: ['bitfield', 5],
+		    codecInfo: ['if', 'codecTypeNonStandard', 
+			    {
+				    audioMimeTypeLen:'uint8',
+				    audioMimeType:['string', 'audioMimeTypeLen']
+			    },
+			    { 
+				    audioCfgLen:'uint8', 
+				    audioCfg:['array','uint8','audioCfgLen']
+			    }
+		    ],
+
                     audio: ['array', 'uint8']
                 },
                 'sdci':{
@@ -553,7 +564,6 @@ function decodeTagItem(tag_name, tag_bytes) {
     }
 }
 
-function decode(bytes) {
 
     const AFFrameTypeset = {
         'jBinary.all': 'AFFrame',
@@ -586,11 +596,25 @@ function decode(bytes) {
     };
 
  
+function decode(bytes) {
     const afJBinary = new jBinary(bytes, AFFrameTypeset);
-    const af_packet = afJBinary.readAll();
-    const tagPacketJBinary = new jBinary(af_packet.tag_packet, TAGPacketTypeset);
+    return decodeAFFrame(afJBinary);
 
-    const tag_items = tagPacketJBinary.readAll();
+}
+
+function decodeAll(bytes) {
+	    const afJBinary = new jBinary(bytes, AFFrameTypeset); 
+	    const af_packets = afJBinary.read(['array', AFFrameTypeset.AFFrame]);
+
+	    return af_packets.map(
+		    function(decodedAFFrame) {
+			    return decodeTagPacket(decodedAFFrame);
+		    }
+	    );
+
+}
+
+function decodeTAGItems(tag_items) {
 
     var decoded_tag_items =  tag_items.map(
         function(tag_item) {
@@ -602,6 +626,21 @@ function decode(bytes) {
     );
 
     return rsciArrayToMap(decoded_tag_items);
+}
+
+function decodeAFFrame(afJBinary) {
+    const af_packet = afJBinary.read(AFFrameTypeset.AFFrame);
+
+    return decodeTagPacket(af_packet);
+}
+
+function decodeTagPacket(af_packet) {
+    const tagPacketJBinary = new jBinary(af_packet.tag_packet, TAGPacketTypeset);
+
+    const tag_items = tagPacketJBinary.readAll();
+
+    return decodeTAGItems(tag_items);
+
 }
 
 function rsciArrayToMap(tagItemArray)
@@ -644,4 +683,79 @@ function rsciArrayToMap(tagItemArray)
     return tag_map;
 }
 
-module.exports = { decode };
+const rciTypeset = {
+	cfre: { 
+		"reception_frequency": "uint32"
+	},
+	cdmo: {
+		"demodulator_type": ['string',4]
+	}
+};
+
+function buildTagBody(tagName, dataObj) {
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, rciTypeset);
+	binary.write(tagName, dataObj);
+	return buf.slice(0,binary.tell());
+};
+
+function buildTagItem(tag_name, dataObj) {
+
+	const body = buildTagBody(tag_name, dataObj);
+	const tagObj = {
+		"tag_name": tag_name,
+		"tag_length": body.length * 8,
+		"tag_value_with_padding": body
+	};
+	return tagObj;
+};
+
+function buildTagPacket(tagItems) {
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, TAGPacketTypeset);
+	binary.write("TAGPacket", tagItems);
+	return buf.slice(0,binary.tell());
+
+
+};
+
+function buildAfFrame(tagPacket) {
+
+	const frameObj = { 
+	    sync: 'AF',
+            len: tagPacket.length,
+            seq: 0,
+            cf: 0,
+            maj_ver: 1,
+            min_ver: 0,
+            pt: 'T',
+            tag_packet: tagPacket,
+            crc: 0
+        }
+	var buf = Buffer.alloc(64);
+	var binary = new jBinary(buf, AFFrameTypeset);
+	binary.write("AFFrame", frameObj);
+	return buf.slice(0,binary.tell());
+}
+
+
+function encodeRCI(rciObj) {
+	var tagItems = [];
+
+	if ("frequency" in rciObj) 
+		tagItems.push(buildTagItem("cfre", {reception_frequency: rciObj.frequency}));
+	if ("mode" in rciObj) 
+		tagItems.push(buildTagItem("cdmo", {demodulator_type: rciObj.mode}));
+
+	const tagPacket = buildTagPacket(tagItems);
+	
+	const afFrame = buildAfFrame(tagPacket);
+	console.log("AF Frame: ", afFrame);
+
+	return afFrame;
+}
+
+
+
+
+module.exports = { decode, decodeAll, encodeRCI };
