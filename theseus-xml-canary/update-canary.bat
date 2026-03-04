@@ -1,3 +1,3 @@
 tar -a -c -f theseus-xml-canary.zip nodejs
-aws s3 cp theseus-xml-canary.zip s3://theseus-misc-bucket
-aws synthetics update-canary --name theseus-xml-canary --region eu-west-2 --code S3Bucket=theseus-misc-bucket,S3Key=theseus-xml-canary.zip,Handler=theseus-xml-canary.handler --run-config EnvironmentVariables={EXPECTED_RX_LIST="ENCble\,ENCwof\,THES04\,THES05\,THES06\,THES07\,THES12\,THES15"}
+aws s3 cp theseus-xml-canary.zip s3://theseus-misc-bucket-2
+aws synthetics update-canary --name theseus-xml-canary-2 --region eu-west-1 --code S3Bucket=theseus-misc-bucket-2,S3Key=theseus-xml-canary.zip,Handler=theseus-xml-canary.handler --run-config EnvironmentVariables={EXPECTED_RX_LIST="TMS002\,TMS003\,TMS008\,TMS014\,TMS016\,TMS019\,THES05\,THES06\,THES07"}
